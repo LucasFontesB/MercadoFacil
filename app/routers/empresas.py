@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
-from app.database import SessionLocal
+from app.core.auth import get_current_user
+from app.database import get_db
 from app.models.empresa import Empresa
 from app.schemas.empresa_schema import EmpresaCreate, EmpresaResponse, EmpresaUpdate
 
@@ -10,18 +10,15 @@ router = APIRouter(
     tags=["Empresas"]
 )
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 # Criar empresa
 @router.post("/", response_model=EmpresaResponse)
-def criar_empresa(empresa: EmpresaCreate, db: Session = Depends(get_db)):
+def criar_empresa(
+    empresa: EmpresaCreate,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)  # 🔐 obrigatório
+):
+    if user["tipo"] != "admin":
+        raise HTTPException(status_code=403, detail="Sem permissão")
 
     nova_empresa = Empresa(**empresa.dict())
 
@@ -31,21 +28,27 @@ def criar_empresa(empresa: EmpresaCreate, db: Session = Depends(get_db)):
 
     return nova_empresa
 
-
 # Listar empresas
 @router.get("/", response_model=list[EmpresaResponse])
-def listar_empresas(db: Session = Depends(get_db)):
-
-    empresas = db.query(Empresa).all()
-
-    return empresas
-
+def listar_empresas(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    return db.query(Empresa).filter(
+        Empresa.id == user["empresa_id"]
+    ).all()
 
 # Buscar empresa por ID
 @router.get("/{empresa_id}", response_model=EmpresaResponse)
-def buscar_empresa(empresa_id: int, db: Session = Depends(get_db)):
-
-    empresa = db.query(Empresa).filter(Empresa.id == empresa_id).first()
+def buscar_empresa(
+    empresa_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    empresa = db.query(Empresa).filter(
+        Empresa.id == empresa_id,
+        Empresa.id == user["empresa_id"]
+    ).first()
 
     if not empresa:
         raise HTTPException(status_code=404, detail="Empresa não encontrada")
@@ -56,17 +59,18 @@ def buscar_empresa(empresa_id: int, db: Session = Depends(get_db)):
 def atualizar_empresa(
     empresa_id: int,
     dados: EmpresaUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
-
-    empresa = db.query(Empresa).filter(Empresa.id == empresa_id).first()
+    empresa = db.query(Empresa).filter(
+        Empresa.id == empresa_id,
+        Empresa.id == user["empresa_id"]
+    ).first()
 
     if not empresa:
         raise HTTPException(status_code=404, detail="Empresa não encontrada")
 
-    dados_dict = dados.dict(exclude_unset=True)
-
-    for campo, valor in dados_dict.items():
+    for campo, valor in dados.dict(exclude_unset=True).items():
         setattr(empresa, campo, valor)
 
     db.commit()
