@@ -9,12 +9,19 @@ from app.routers import estoque
 from app.routers import vendas
 from app.routers import venda_itens
 from app.routers import caixa
+from app.routers import despesas
+from app.routers import turnos
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="PDV SaaS")
+app.mount("/uploads", StaticFiles(directory="app/uploads"), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,3 +36,5 @@ app.include_router(estoque.router)
 app.include_router(vendas.router)
 app.include_router(venda_itens.router)
 app.include_router(caixa.router)
+app.include_router(despesas.router)
+app.include_router(turnos.router)

@@ -3,8 +3,14 @@ import Login from "./pages/Login";
 import PDV from "./pages/PDV";
 import AdminLayout from "./pages/AdminLayout";
 import Produtos from "./pages/admin/Produtos";
+import Estoque from "./pages/admin/Estoque";
+import Usuarios from "./pages/admin/Usuarios";
+import Caixa from "./pages/admin/Caixa";
+import Despesas from "./pages/admin/Despesas";
+import Turnos from "./pages/admin/Turnos";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
+import "./styles/print.css";
 
 function Dashboard() {
   return <h1>Dashboard 🚀</h1>;
@@ -44,6 +50,11 @@ function App() {
           }
         >
           <Route path="produtos" element={<Produtos />} />
+          <Route path="estoque"  element={<Estoque />} />
+          <Route path="usuarios" element={<Usuarios />} />
+          <Route path="caixa" element={<Caixa />} />
+          <Route path="despesas" element={<Despesas />} />
+          <Route path="turnos" element={<Turnos />} />
         </Route>
       </Routes>
     </BrowserRouter>

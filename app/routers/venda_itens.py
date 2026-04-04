@@ -51,6 +51,7 @@ def adicionar_item(
         produto_id=produto.id,
         quantidade=dados.quantidade,
         preco_unitario=preco_unitario,
+        preco_custo=produto.preco_custo,  # ← adiciona
         subtotal=subtotal
     )
 

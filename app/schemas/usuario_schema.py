@@ -3,7 +3,6 @@ from datetime import datetime
 
 
 class UsuarioCreate(BaseModel):
-    empresa_id: int
     nome: str
     login: str
     senha: str

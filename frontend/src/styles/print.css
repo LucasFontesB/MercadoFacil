@@ -1,0 +1,36 @@
+.no-screen {
+  display: none;
+}
+
+@media print {
+  .no-screen {
+    display: block !important;
+  }
+}
+
+@media print {
+  /* Esconde absolutamente tudo na tela */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Define que apenas a área de impressão e seus filhos fiquem visíveis */
+  #print-area, #print-area * {
+    visibility: visible;
+  }
+
+  /* Posiciona a área de impressão no topo da página */
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm; /* Largura padrão de impressora térmica */
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Remove margens extras da página de impressão */
+  @page {
+    margin: 0;
+  }
+}

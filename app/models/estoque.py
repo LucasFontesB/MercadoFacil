@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, TIMESTAMP, func
 from app.database import Base
 

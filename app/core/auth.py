@@ -10,25 +10,37 @@ from app.core.config import (
 )
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models.usuarios import Usuario
 
 security = HTTPBearer()
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
 ):
     token = credentials.credentials
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
-        user_id = payload.get("user_id")
+        user_id    = payload.get("user_id")
         empresa_id = payload.get("empresa_id")
+        tipo       = payload.get("tipo")
 
         if user_id is None:
             raise HTTPException(status_code=401, detail="Token inválido")
 
+        # ← verifica se o usuário ainda está ativo no banco
+        usuario = db.query(Usuario).filter(Usuario.id == user_id).first()
+
+        if not usuario or not usuario.ativo:
+            raise HTTPException(status_code=401, detail="Sessão inválida")
+
         return {
-            "user_id": user_id,
-            "empresa_id": empresa_id
+            "user_id":    user_id,
+            "empresa_id": empresa_id,
+            "tipo":       tipo
         }
 
     except JWTError:

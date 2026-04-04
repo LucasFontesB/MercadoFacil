@@ -12,6 +12,7 @@ class Empresa(Base):
     cnpj = Column(String(20))
     telefone = Column(String(20))
     endereco = Column(Text)
+    logo_url = Column(String(250))
 
     ativo = Column(Boolean, default=True)
 

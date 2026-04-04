@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from sqlalchemy import or_
 from app.core.security import require_admin
 from app.database import get_db
 from app.models.produto import Produto
@@ -45,12 +45,16 @@ def listar_produtos(
         Produto.ativo == True
     ).all()
 
-@router.get("/buscar/{codigo}")
-def buscar_produto(codigo: str, db: Session = Depends(get_db), user=Depends(get_current_user)):
+@router.get("/buscar")
+def buscar_produto(q: str, db: Session = Depends(get_db), user=Depends(get_current_user)):
     return db.query(Produto).filter(
-        Produto.codigo_barras == codigo,
-        Produto.empresa_id == user["empresa_id"]
-    ).first()
+        Produto.empresa_id == user["empresa_id"],
+        Produto.ativo == True,
+        or_(
+            Produto.nome.ilike(f"%{q}%"),
+            Produto.codigo_barras.ilike(f"%{q}%")
+        )
+    ).limit(10).all()
 
 @router.put("/{produto_id}")
 def atualizar_produto(

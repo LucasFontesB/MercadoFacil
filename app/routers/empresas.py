@@ -5,6 +5,7 @@ from app.core.security import require_admin
 from app.database import get_db
 from app.models.empresa import Empresa
 from app.schemas.empresa_schema import EmpresaCreate, EmpresaResponse, EmpresaUpdate
+from fastapi import UploadFile, File
 
 router = APIRouter(
     prefix="/empresas",
@@ -75,3 +76,25 @@ def atualizar_empresa(
     db.refresh(empresa)
 
     return empresa
+
+@router.post("/upload-logo")
+def upload_logo(
+    file: UploadFile = File(...),
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    empresa_id = user["empresa_id"]
+
+    caminho = f"app/uploads/empresas/empresa_{empresa_id}.png"
+
+    with open(caminho, "wb") as buffer:
+        buffer.write(file.file.read())
+
+    url = f"/uploads/empresas/empresa_{empresa_id}.png"
+
+    empresa = db.query(Empresa).filter(Empresa.id == empresa_id).first()
+    empresa.logo_url = url
+
+    db.commit()
+
+    return {"logo_url": url}

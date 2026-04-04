@@ -12,6 +12,7 @@ class VendaItemResponse(BaseModel):
     produto_id: int
     quantidade: Decimal
     preco_unitario: Decimal
+    preco_custo: Decimal | None  # ← adiciona
     subtotal: Decimal
 
     class Config:

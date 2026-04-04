@@ -23,6 +23,7 @@ api.interceptors.response.use(
       console.log("Token expirado 🚨");
 
       localStorage.removeItem("token");
+      localStorage.removeItem("usuario");
 
       window.location.href = "/login";
     }

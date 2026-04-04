@@ -13,3 +13,5 @@ class VendaItem(Base):
     quantidade = Column(Numeric(10, 3), nullable=False)
     preco_unitario = Column(Numeric(10, 2), nullable=False)
     subtotal = Column(Numeric(10, 2), nullable=False)
+
+    preco_custo = Column(Numeric(10, 2), nullable=True)
